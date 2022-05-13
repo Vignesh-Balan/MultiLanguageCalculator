@@ -1,0 +1,203 @@
+package folded.arrow.Calculator
+
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.os.Bundle
+import android.text.method.ScrollingMovementMethod
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.widget.PopupMenu
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import com.ibm.icu.text.RuleBasedNumberFormat
+import kotlinx.android.synthetic.main.activity_main.*
+import net.objecthunter.exp4j.ExpressionBuilder
+import java.util.*
+
+
+class MainActivity : AppCompatActivity() {
+    var result: Double = 0.0
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        val inputValue = StringBuffer(" ")
+        var cn: Int =0
+
+        wordShow.setMovementMethod(ScrollingMovementMethod())
+        numShow.setMovementMethod(ScrollingMovementMethod())
+        openButton.setOnClickListener {
+            inputValue.append("(")
+            numShow.setText(inputValue)
+        }
+        closeButton.setOnClickListener {
+            inputValue.append(")")
+            numShow.setText(inputValue)
+        }
+        button0.setOnClickListener {
+            inputValue.append("0")
+            numShow.setText(inputValue)
+            cn+=1
+        }
+        button1.setOnClickListener {
+            inputValue.append("1")
+            numShow.setText(inputValue)
+            cn+=1
+        }
+        button2.setOnClickListener {
+            inputValue.append("2")
+            numShow.setText(inputValue)
+            cn+=1
+        }
+        button3.setOnClickListener {
+            inputValue.append("3")
+            numShow.setText(inputValue)
+            cn+=1
+        }
+        button4.setOnClickListener {
+            inputValue.append("4")
+            numShow.setText(inputValue)
+            cn+=1
+        }
+        button5.setOnClickListener {
+            inputValue.append("5")
+            numShow.setText(inputValue)
+            cn+=1
+        }
+        button6.setOnClickListener {
+            inputValue.append("6")
+            numShow.setText(inputValue)
+            cn+=1
+        }
+        button7.setOnClickListener {
+            inputValue.append("7")
+            numShow.setText(inputValue)
+            cn+=1
+        }
+        button8.setOnClickListener {
+            inputValue.append("8")
+            numShow.setText(inputValue)
+            cn+=1
+        }
+        button9.setOnClickListener {
+            inputValue.append("9")
+            numShow.setText(inputValue)
+            cn+=1
+        }
+        addButton.setOnClickListener {
+            inputValue.append("+")
+            numShow.setText(inputValue)
+        }
+        subButton.setOnClickListener {
+            inputValue.append("-")
+            numShow.setText(inputValue)
+        }
+        mulButton.setOnClickListener {
+            inputValue.append("*")
+            numShow.setText(inputValue)
+        }
+        divButton.setOnClickListener {
+            inputValue.append("/")
+            numShow.setText(inputValue)
+        }
+        dotButton.setOnClickListener {
+            inputValue.append(".")
+            numShow.setText(inputValue)
+            cn+=1
+            if (cn==1)
+            {
+                inputValue.replace(0,inputValue.length-1,"0")
+            }
+        }
+        delButton.setOnClickListener {
+            try {
+                inputValue.deleteCharAt(inputValue.length - 1)
+                numShow.setText(inputValue)
+            }catch (e: Exception) {
+                // handler
+                resultView.setText("No number to delete")
+            }
+        }
+        copyNum.setOnClickListener{
+            val clipboard: ClipboardManager =
+                getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+            val clip = ClipData.newPlainText("number copied", result.toString())
+            clipboard.setPrimaryClip(clip)
+            Toast.makeText(this@MainActivity, "number copied", Toast.LENGTH_SHORT).show()
+        }
+        copyText.setOnClickListener{
+            val clipboard: ClipboardManager =
+                getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+            val clip = ClipData.newPlainText("Text copied", wordShow.text.toString())
+            clipboard.setPrimaryClip(clip)
+            Toast.makeText(this@MainActivity, "text copied", Toast.LENGTH_SHORT).show()
+        }
+
+        equal.setOnClickListener {
+
+            try {
+                val expression = ExpressionBuilder(inputValue.toString()).build()
+                result = expression.evaluate()
+                val english = convertIntoWords(result,"en", "IN")
+                wordShow.setText(english)
+                resultView.setText(result.toString())
+
+            }catch (ex: ArithmeticException){
+                resultView.setText("invalid expression")
+            }
+            catch (ex: Exception){
+                resultView.setText("invalid expression")
+            }
+
+        }
+
+
+        clearButton.setOnClickListener {
+            inputValue.delete(0, inputValue.length)
+            numShow.setText(" ")
+            resultView.setText(" ")
+            wordShow.setText(" ")
+            result = 0.0
+            cn=0
+        }
+
+    }
+
+    private fun convertIntoWords(str: Double, language: String, Country: String): String? {
+        val local = Locale(language, Country)
+        val ruleBasedNumberFormat = RuleBasedNumberFormat(local, RuleBasedNumberFormat.SPELLOUT)
+        return ruleBasedNumberFormat.format(str)
+    }
+    fun showPopup(v: View) {
+        val popup = PopupMenu(this, v)
+        val inflater: MenuInflater = popup.menuInflater
+        inflater.inflate(R.menu.menuxml, popup.menu)
+        popup.show()
+    }
+
+    fun itemShow(item: MenuItem) {
+        when (item.itemId) {
+            R.id.english -> {
+                val english = convertIntoWords(result,"en", "IN")
+                wordShow.setText(english)
+            }
+            R.id.hindi -> {
+                val english = convertIntoWords(result, "hi", "IN")
+                wordShow.setText(english)
+            }
+            R.id.arabicuae -> {
+                val english = convertIntoWords(result, "ar", "AE")
+                wordShow.setText(english)
+            }
+            R.id.italian -> {
+                val english = convertIntoWords(result, "it", "IT")
+                wordShow.setText(english)
+            }
+            R.id.japanese -> {
+                val english = convertIntoWords(result, "ja", "JP")
+                wordShow.setText(english)
+            }
+        }
+    }
+
+}
